@@ -1,0 +1,31 @@
+.content {
+    margin: 30px auto;
+    height: 720px;
+    width: 480px;
+    text-align: center;
+}
+
+svg {
+    position: relative;
+    border: 2px solid grey;
+    height: 720px;
+    width: 440px;
+}
+
+rect {
+    z-index: 0;
+    -webkit-transition: all 2s ease;
+    fill: #00BFFF;
+}
+
+line {
+    z-index: 10;
+    stroke: gray; 
+    stroke-width: 1;
+}
+        
+
+
+
+
+

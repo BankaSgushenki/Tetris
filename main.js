@@ -68,26 +68,35 @@ function moveSquare(e) {
 }
 
 function checkLines() {
-    var temp = squaresStorage.filter(function(item) {
-        if (item.position().bottom === 721) return item;
-    })
-
-    if(temp.length === 11) {
-        squaresStorage = squaresStorage.filter(function(item) {
-            if (item.position().bottom != 721)  {
-                return item;
-            }
-            else item.remove();
+    lines.forEach(function (linePosition) {
+        var temp = squaresStorage.filter(function(item) {
+            if (item.position().bottom === linePosition) return item;
         })
-        squaresStorage.forEach(function (item) {
-            item.attr("y",item.position().top + BLOCKSIZE);
-        });
-    }
+
+        if(temp.length === 11) {
+            squaresStorage = squaresStorage.filter(function(item) {
+                if (item.position().bottom != linePosition)  {
+                    return item;
+                }
+                else item.remove();
+            })
+            squaresStorage.forEach(function (item) {
+                if(item.position().top < linePosition) {
+                    item.attr("y",item.position().top + BLOCKSIZE);
+                }
+            });
+        document.querySelector(".score").innerText = "Score: " + ++score;
+        }
+    })
 }
+
+var score = 0;
 
 const BLOCKSIZE = 38;
 
 var squaresStorage = [];
+
+var lines = [721, 681, 641, 601, 561, 521, 481, 441, 401, 361, 321, 281, 241, 201, 161, 121, 81];
 
 window.addEventListener("keydown", moveSquare, false);
 

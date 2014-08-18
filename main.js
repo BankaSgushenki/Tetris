@@ -44,39 +44,112 @@ function drawGrid() {
     }
 }
 
-var shape = [];
+const BLOCKSIZE = 38;
 
 var squaresStorage = [];
 
 window.addEventListener("keydown", moveSquare, false);
 
+var shape = {
+    blocks : [],
+
+    moveDown : function () {
+        this.blocks.forEach(function (square) {
+            square
+                .attr("y",square.position().top + BLOCKSIZE);
+        });
+    },
+
+    toLeft : function () {
+        this.blocks.forEach(function (square) {
+            square
+                .attr("x",square.position().left - 42); //no ides, why it should be 42
+        });
+    },
+
+    toRight : function () {
+         this.blocks.forEach(function (square) {
+            square
+                .attr("x",square.position().left + BLOCKSIZE);
+        });
+    },
+
+    leftIsEmpty : function () {
+        for (var i = 0; i < 4; i++ ) {
+            var left = this.blocks[i].position().left;
+            var bottom = this.blocks[i].position().bottom;
+            if (left < 40) return false;
+    
+            var temp = squaresStorage.filter(function(item) {
+                if (item.x === left - 40 && item.y  === bottom) return item;
+            })
+            if (temp.length > 0) return false;
+        }
+        return true;
+    },
+
+    rightIsEmpty : function () {
+        for (var i = 0; i < 4; i++ ) {
+         var left = this.blocks[i].position().left;
+            var bottom = this.blocks[i].position().bottom;
+
+            if (left > 400) return false;
+
+            var temp = squaresStorage.filter(function(item) {
+                if (item.x === left + 40 && item.y  === bottom) return item;
+            })
+            if (temp.length > 0) return false;
+        }
+        return true;
+    },
+
+    bottomIsEmpty : function () {
+        for (var i = 0; i < 4; i++ ) {
+            var left = this.blocks[i].position().left;
+            var bottom = this.blocks[i].position().bottom;
+
+            var temp = squaresStorage.filter(function(item) {
+                if (item.y === bottom + 40 && item.x === left) return item;
+            })
+        if (temp.length > 0) return false;
+
+            if (bottom === 721) return false;
+        }
+        return true;
+    },
+
+    rotate : function () {
+        
+    }
+};
+
 function moveSquare(e) {
      switch (e.keyCode) {
-       case 37:
-            if (leftIsEmpty()) {
-                toLeft(); 
+        case 37:
+            if (shape.leftIsEmpty()) {
+                shape.toLeft(); 
             }
             break;
         case 39:
-            if (rightIsEmpty()) {
-                toRight();
+            if (shape.rightIsEmpty()) {
+                shape.toRight();
             }
             break;
         case 40:
-            if (bottomIsEmpty()) {
-                moveDown();
+            if (shape.bottomIsEmpty()) {
+                shape.moveDown();
             }
             break;
         }
 }
 
 var nextStep = function () {
-    if (bottomIsEmpty()) {
-        moveDown();
+    if (shape.bottomIsEmpty()) {
+        shape.moveDown();
         setTimeout(nextStep, 250);
     }
     else {
-        shape.forEach(function (square) {
+        shape.blocks.forEach(function (square) {
          square
            squaresStorage.push(
                 {
@@ -85,128 +158,70 @@ var nextStep = function () {
                 }
             )
         });
-        if (shape[3].position().bottom != 41) {
+        if (shape.blocks[3].position().bottom != 41) {
             newShape();
         }
     }
 }
 
-var moveDown = function () {
-    shape.forEach(function (square) {
-         square
-            .attr("y",square.position().top + 38);
-    })
-}
-
-var newSquare = function (xOffset, yOffset) {
+var newSquare = function (xOffset, yOffset, rand) {
     var square = svg.append('rect')
         .attr('x', 201 + xOffset*40)
         .attr('y', 1 + yOffset*40)
-        .attr('width', 38)
-        .attr('height', 38)
+        .attr('width', BLOCKSIZE)
+        .attr('height', BLOCKSIZE)
+    switch(rand) {
+        case 0:
+            square.attr("fill", "#00BFFF")
+            break;
+        case 1:
+            square.attr("fill", "#FF0000")
+            break;
+        case 2:
+            square.attr("fill", "#FFA500")
+            break;
+        case 3:
+            square.attr("fill", "#00FF00")
+            break;
+    }
 
-    shape.push(square);
+    shape.blocks.push(square);
 }
 
 var newShape = function  () {
     for (var i = 0; i < 4; i ++) {
-        shape.pop();
+        shape.blocks.pop();
     }
 
-    var magicNumber = randomNumber(0,3)
+    var magicNumber = randomNumber(0,3);
 
     switch(magicNumber) {
         case 0:
-            newSquare(1,0);
-            newSquare(0,1);
-            newSquare(1,1);
-            newSquare(2,1);
+            newSquare(1,0,magicNumber);
+            newSquare(0,1,magicNumber);
+            newSquare(1,1,magicNumber);
+            newSquare(2,1,magicNumber);
             break;
         case 1:
-            newSquare(0,0);
-            newSquare(0,1);
-            newSquare(1,1);
-            newSquare(1,0);
+            newSquare(0,0,magicNumber);
+            newSquare(0,1,magicNumber);
+            newSquare(1,1,magicNumber);
+            newSquare(1,0,magicNumber);
             break;
         case 2:
-            newSquare(0,0);
-            newSquare(0,1);
-            newSquare(0,2);
-            newSquare(0,3);
+            newSquare(0,0,magicNumber);
+            newSquare(0,1,magicNumber);
+            newSquare(0,2,magicNumber);
+            newSquare(0,3,magicNumber);
             break;
         case 3:
-            newSquare(0,0);
-            newSquare(0,1);
-            newSquare(1,1);
-            newSquare(2,1);
+            newSquare(0,0,magicNumber);
+            newSquare(0,1,magicNumber);
+            newSquare(1,1,magicNumber);
+            newSquare(2,1,magicNumber);
             break;
     }
     setTimeout(nextStep, 250);
-}
-
-var rotate = function () {
-
-}
-
-var toLeft = function () {
-    shape.forEach(function (square) {
-         square
-           .attr("x",square.position().left - 42);
-    });
-}
-
-var toRight = function () {
-    shape.forEach(function (square) {
-        square
-           .attr("x",square.position().left + 38);
-    });
-}
-
-var leftIsEmpty = function () {
-    for (var i = 0; i < 4; i++ ) {
-        var left = shape[i].position().left;
-        var bottom = shape[i].position().bottom;
-        if (left < 40) return false;
-
-        var temp = squaresStorage.filter(function(item) {
-            if (item.x === left - 40 && item.y  === bottom) return item;
-        })
-        if (temp.length > 0) return false;
-    }
-
-    return true;
-}
-
-var rightIsEmpty = function () {
-    for (var i = 0; i < 4; i++ ) {
-        var left = shape[i].position().left;
-        var bottom = shape[i].position().bottom;
-
-        if (left > 400) return false;
-
-        var temp = squaresStorage.filter(function(item) {
-            if (item.x === left + 40 && item.y  === bottom) return item;
-        })
-        if (temp.length > 0) return false;
-    }
-
-    return true;
-}
-
-var bottomIsEmpty = function () {
-    for (var i = 0; i < 4; i++ ) {
-        var left = shape[i].position().left;
-        var bottom = shape[i].position().bottom;
-
-        var temp = squaresStorage.filter(function(item) {
-            if (item.y === bottom + 40 && item.x === left) return item;
-        })
-        if (temp.length > 0) return false;
-
-        if (bottom === 721) return false;
-    }
-
-    return true;
 }
 
 drawGrid();

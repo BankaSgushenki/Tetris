@@ -68,29 +68,33 @@ function moveSquare(e) {
 }
 
 function checkLines() {
-    lines.forEach(function (linePosition) {
+    for (var i = 0; i < 17; i ++) {
         var temp = squaresStorage.filter(function(item) {
-            if (item.position().bottom === linePosition) return item;
+            if (item.position().bottom === lines[i]) return item;
         })
 
         if(temp.length === 11) {
             squaresStorage = squaresStorage.filter(function(item) {
-                if (item.position().bottom != linePosition)  {
+                if (item.position().bottom != lines[i])  {
                     return item;
                 }
                 else item.remove();
             })
             squaresStorage.forEach(function (item) {
-                if(item.position().top < linePosition) {
+                if(item.position().top < lines[i]) {
                     item.attr("y",item.position().top + BLOCKSIZE);
                 }
             });
         document.querySelector(".score").innerText = "Score: " + ++score;
+        if(score % 5 === 0) speed = speed - 25;
+        i--;
         }
-    })
+    }
 }
 
 var score = 0;
+
+var speed = 250;
 
 const BLOCKSIZE = 38;
 
@@ -337,7 +341,7 @@ var shape = {
 var nextStep = function () {
     if (shape.bottomIsEmpty()) {
         shape.moveDown();
-        setTimeout(nextStep, 250);
+        setTimeout(nextStep, speed);
     }
     else {
         shape.blocks.forEach(function (square) {
@@ -416,7 +420,7 @@ var newShape = function  () {
     shape.currentRotation = 0;
     shapeFactory(shape.shapeType);
     
-    setTimeout(nextStep, 250);
+    setTimeout(nextStep, speed);
 }
 
 drawGrid();

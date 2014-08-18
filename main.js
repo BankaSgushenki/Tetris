@@ -322,7 +322,10 @@ var nextStep = function () {
                 }
             )
         });
-        if (shape.blocks[3].position().bottom != 41) {
+        var temp = shape.blocks.filter(function(item) {
+                if (item.position().bottom === 41) return item;
+            })
+        if (!temp.length) {
             newShape();
         }
     }

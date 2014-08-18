@@ -67,6 +67,24 @@ function moveSquare(e) {
         }
 }
 
+function checkLines() {
+    var temp = squaresStorage.filter(function(item) {
+        if (item.position().bottom === 721) return item;
+    })
+
+    if(temp.length === 11) {
+        squaresStorage = squaresStorage.filter(function(item) {
+            if (item.position().bottom != 721)  {
+                return item;
+            }
+            else item.remove();
+        })
+        squaresStorage.forEach(function (item) {
+            item.attr("y",item.position().top + BLOCKSIZE);
+        });
+    }
+}
+
 const BLOCKSIZE = 38;
 
 var squaresStorage = [];
@@ -106,7 +124,7 @@ var shape = {
             if (left < 40) return false;
     
             var temp = squaresStorage.filter(function(item) {
-                if (item.x === left - 40 && item.y  === bottom) return item;
+                if (item.position().left === left - 40 && item.position().bottom  === bottom) return item;
             })
             if (temp.length > 0) return false;
         }
@@ -121,7 +139,7 @@ var shape = {
             if (left > 400) return false;
 
             var temp = squaresStorage.filter(function(item) {
-                if (item.x === left + 40 && item.y  === bottom) return item;
+                if (item.position().left === left + 40 && item.position().bottom  === bottom) return item;
             })
             if (temp.length > 0) return false;
         }
@@ -134,7 +152,7 @@ var shape = {
             var bottom = this.blocks[i].position().bottom;
 
             var temp = squaresStorage.filter(function(item) {
-                if (item.y === bottom + 40 && item.x === left) return item;
+                if (item.position().bottom === bottom + 40 && item.position().left === left) return item;
             })
         if (temp.length > 0) return false;
 
@@ -314,18 +332,13 @@ var nextStep = function () {
     }
     else {
         shape.blocks.forEach(function (square) {
-         square
-           squaresStorage.push(
-                {
-                    'x': square.position().left,
-                    'y': square.position().bottom
-                }
-            )
+            squaresStorage.push(square)
         });
         var temp = shape.blocks.filter(function(item) {
                 if (item.position().bottom === 41) return item;
             })
         if (!temp.length) {
+            checkLines();
             newShape();
         }
     }

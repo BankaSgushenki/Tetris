@@ -44,6 +44,29 @@ function drawGrid() {
     }
 }
 
+function moveSquare(e) {
+     switch (e.keyCode) {
+        case 37:
+            if (shape.leftIsEmpty()) {
+                shape.toLeft(); 
+            }
+            break;
+        case 39:
+            if (shape.rightIsEmpty()) {
+                shape.toRight();
+            }
+            break;
+        case 40:
+            if (shape.bottomIsEmpty()) {
+                shape.moveDown();
+            }
+            break;
+        case 32:
+            shape.rotate();
+            break;
+        }
+}
+
 const BLOCKSIZE = 38;
 
 var squaresStorage = [];
@@ -51,6 +74,8 @@ var squaresStorage = [];
 window.addEventListener("keydown", moveSquare, false);
 
 var shape = {
+    shapeType: 0,
+    currentRotation: 0,
     blocks : [],
 
     moveDown : function () {
@@ -119,29 +144,168 @@ var shape = {
     },
 
     rotate : function () {
-        
+        switch (this.shapeType) {
+            case 0:
+                switch (this.currentRotation) {
+                    case 0:
+                        this.blocks[0].attr('x', this.blocks[0].position().left + 38)
+                        this.blocks[0].attr('y', this.blocks[0].position().top + 38)
+
+                        this.blocks[3].attr('x', this.blocks[3].position().left - 42)
+                        this.blocks[3].attr('y', this.blocks[3].position().top + 38)
+
+                        this.blocks[1].attr('x', this.blocks[1].position().left + 38)
+                        this.blocks[1].attr('y', this.blocks[1].position().top - 42)
+
+                        this.currentRotation = 90;
+                        break;
+                    case 90:
+                        this.blocks[0].attr('x', this.blocks[0].position().left - 42);
+                        this.blocks[0].attr('y', this.blocks[0].position().top + 38)
+
+                        this.blocks[3].attr('x', this.blocks[3].position().left - 42)
+                        this.blocks[3].attr('y', this.blocks[3].position().top - 42)
+
+                        this.blocks[1].attr('x', this.blocks[1].position().left + 38)
+                        this.blocks[1].attr('y', this.blocks[1].position().top + 38)
+
+                        this.currentRotation = 180;
+                        break;
+                    case 180:
+                        this.blocks[0].attr('x', this.blocks[0].position().left - 42)
+                        this.blocks[0].attr('y', this.blocks[0].position().top  - 42)
+
+                        this.blocks[3].attr('x', this.blocks[3].position().left + 38)
+                        this.blocks[3].attr('y', this.blocks[3].position().top - 42)
+
+                        this.blocks[1].attr('x', this.blocks[1].position().left - 42)
+                        this.blocks[1].attr('y', this.blocks[1].position().top + 38)
+
+                        this.currentRotation = 270;
+                        break;
+                    case 270:
+                        this.blocks[0].attr('x', this.blocks[0].position().left + 38)
+                        this.blocks[0].attr('y', this.blocks[0].position().top - 42)
+
+                        this.blocks[3].attr('x', this.blocks[3].position().left + 38)
+                        this.blocks[3].attr('y', this.blocks[3].position().top + 38)
+
+                        this.blocks[1].attr('x', this.blocks[1].position().left - 42)
+                        this.blocks[1].attr('y', this.blocks[1].position().top - 42)
+
+                        this.currentRotation = 0;
+                        break;
+                }
+                break;
+
+            case 2:
+                switch (this.currentRotation) {
+                    case 0:
+                        this.blocks[0].attr('x', this.blocks[0].position().left + 78)
+                        this.blocks[0].attr('y', this.blocks[0].position().top + 78)
+
+                        this.blocks[3].attr('x', this.blocks[3].position().left - 42)
+                        this.blocks[3].attr('y', this.blocks[3].position().top - 42)
+
+                        this.blocks[1].attr('x', this.blocks[1].position().left + 38)
+                        this.blocks[1].attr('y', this.blocks[1].position().top + 38)
+
+                        this.currentRotation = 90;
+                        break;
+                    case 90:
+                        this.blocks[0].attr('x', this.blocks[0].position().left - 82);
+                        this.blocks[0].attr('y', this.blocks[0].position().top + 78)
+
+                        this.blocks[3].attr('x', this.blocks[3].position().left + 38)
+                        this.blocks[3].attr('y', this.blocks[3].position().top - 42)
+
+                        this.blocks[1].attr('x', this.blocks[1].position().left -42)
+                        this.blocks[1].attr('y', this.blocks[1].position().top + 38)
+
+                        this.currentRotation = 180;
+                        break;
+                    case 180:
+                        this.blocks[0].attr('x', this.blocks[0].position().left - 82)
+                        this.blocks[0].attr('y', this.blocks[0].position().top  - 82)
+
+                        this.blocks[3].attr('x', this.blocks[3].position().left + 38)
+                        this.blocks[3].attr('y', this.blocks[3].position().top + 38)
+
+                        this.blocks[1].attr('x', this.blocks[1].position().left - 42)
+                        this.blocks[1].attr('y', this.blocks[1].position().top - 42)
+
+                        this.currentRotation = 270;
+                        break;
+                    case 270:
+                        this.blocks[0].attr('x', this.blocks[0].position().left + 78)
+                        this.blocks[0].attr('y', this.blocks[0].position().top - 82)
+
+                        this.blocks[3].attr('x', this.blocks[3].position().left - 42)
+                        this.blocks[3].attr('y', this.blocks[3].position().top + 38)
+
+                        this.blocks[1].attr('x', this.blocks[1].position().left + 38)
+                        this.blocks[1].attr('y', this.blocks[1].position().top - 42)
+
+                        this.currentRotation = 0;
+                        break;
+                }
+                break;
+
+             case 3:
+                switch (this.currentRotation) {
+                    case 0:
+                        this.blocks[0].attr('x', this.blocks[0].position().left + 38)
+                        this.blocks[0].attr('y', this.blocks[0].position().top + 38)
+
+                        this.blocks[3].attr('x', this.blocks[3].position().left - 82)
+                        this.blocks[3].attr('y', this.blocks[3].position().top + 78)
+
+                        this.blocks[2].attr('x', this.blocks[2].position().left - 42)
+                        this.blocks[2].attr('y', this.blocks[2].position().top + 38)
+
+                        this.currentRotation = 90;
+                        break;
+                    case 90:
+                        this.blocks[0].attr('x', this.blocks[0].position().left - 42);
+                        this.blocks[0].attr('y', this.blocks[0].position().top + 38)
+
+                        this.blocks[3].attr('x', this.blocks[3].position().left - 82)
+                        this.blocks[3].attr('y', this.blocks[3].position().top - 82)
+
+                        this.blocks[2].attr('x', this.blocks[1].position().left - 42)
+                        this.blocks[2].attr('y', this.blocks[2].position().top  - 42)
+
+                        this.currentRotation = 180;
+                        break;
+                    case 180:
+                        this.blocks[0].attr('x', this.blocks[0].position().left - 42)
+                        this.blocks[0].attr('y', this.blocks[0].position().top  - 42)
+
+                        this.blocks[3].attr('x', this.blocks[3].position().left + 78)
+                        this.blocks[3].attr('y', this.blocks[3].position().top - 82)
+
+                        this.blocks[2].attr('x', this.blocks[2].position().left + 38)
+                        this.blocks[2].attr('y', this.blocks[2].position().top - 42)
+
+                        this.currentRotation = 270;
+                        break;
+                    case 270:
+                        this.blocks[0].attr('x', this.blocks[0].position().left + 38)
+                        this.blocks[0].attr('y', this.blocks[0].position().top - 42)
+
+                        this.blocks[3].attr('x', this.blocks[3].position().left + 78)
+                        this.blocks[3].attr('y', this.blocks[3].position().top + 78)
+
+                        this.blocks[2].attr('x', this.blocks[2].position().left + 38)
+                        this.blocks[2].attr('y', this.blocks[2].position().top + 38)
+
+                        this.currentRotation = 0;
+                        break;
+                }
+                break;
+        }
     }
 };
-
-function moveSquare(e) {
-     switch (e.keyCode) {
-        case 37:
-            if (shape.leftIsEmpty()) {
-                shape.toLeft(); 
-            }
-            break;
-        case 39:
-            if (shape.rightIsEmpty()) {
-                shape.toRight();
-            }
-            break;
-        case 40:
-            if (shape.bottomIsEmpty()) {
-                shape.moveDown();
-            }
-            break;
-        }
-}
 
 var nextStep = function () {
     if (shape.bottomIsEmpty()) {
@@ -166,7 +330,7 @@ var nextStep = function () {
 
 var newSquare = function (xOffset, yOffset, rand) {
     var square = svg.append('rect')
-        .attr('x', 201 + xOffset*40)
+        .attr('x', 161 + xOffset*40)
         .attr('y', 1 + yOffset*40)
         .attr('width', BLOCKSIZE)
         .attr('height', BLOCKSIZE)
@@ -188,39 +352,45 @@ var newSquare = function (xOffset, yOffset, rand) {
     shape.blocks.push(square);
 }
 
-var newShape = function  () {
-    for (var i = 0; i < 4; i ++) {
-        shape.blocks.pop();
+var shapeFactory = function(type) {
+    while (shape.blocks.length) {
+            shape.blocks.pop();
     }
 
-    var magicNumber = randomNumber(0,3);
-
-    switch(magicNumber) {
+    switch(type) {
         case 0:
-            newSquare(1,0,magicNumber);
-            newSquare(0,1,magicNumber);
-            newSquare(1,1,magicNumber);
-            newSquare(2,1,magicNumber);
-            break;
+            newSquare(1,0,type);
+            newSquare(0,1,type);
+            newSquare(1,1,type);
+            newSquare(2,1,type);
+            break;     
         case 1:
-            newSquare(0,0,magicNumber);
-            newSquare(0,1,magicNumber);
-            newSquare(1,1,magicNumber);
-            newSquare(1,0,magicNumber);
+            newSquare(0,0,type);
+            newSquare(0,1,type);
+            newSquare(1,1,type);
+            newSquare(1,0,type);
             break;
         case 2:
-            newSquare(0,0,magicNumber);
-            newSquare(0,1,magicNumber);
-            newSquare(0,2,magicNumber);
-            newSquare(0,3,magicNumber);
+            newSquare(1,0,type);
+            newSquare(1,1,type);
+            newSquare(1,2,type);
+            newSquare(1,3,type);
             break;
         case 3:
-            newSquare(0,0,magicNumber);
-            newSquare(0,1,magicNumber);
-            newSquare(1,1,magicNumber);
-            newSquare(2,1,magicNumber);
+            newSquare(0,0,type);
+            newSquare(0,1,type);
+            newSquare(1,1,type);
+            newSquare(2,1,type);
             break;
     }
+}
+
+var newShape = function  () {
+
+    shape.shapeType = randomNumber(0,3);
+    shape.currentRotation = 0;
+    shapeFactory(shape.shapeType);
+    
     setTimeout(nextStep, 250);
 }
 

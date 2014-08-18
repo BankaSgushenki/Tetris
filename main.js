@@ -22,6 +22,10 @@ d3.selection.prototype.position = function() {
 
 };
 
+function randomNumber (m,n) {
+    return Math.floor( Math.random() * (n - m + 1) ) + m;
+}
+
 function drawGrid() {
     for (var i = 0; i < 12; i++) {
         svg.append('line')
@@ -40,7 +44,7 @@ function drawGrid() {
     }
 }
 
-var square;
+var shape = [];
 
 var squaresStorage = [];
 
@@ -58,87 +62,153 @@ function moveSquare(e) {
                 toRight();
             }
             break;
+        case 40:
+            if (bottomIsEmpty()) {
+                moveDown();
+            }
+            break;
         }
 }
 
 var nextStep = function () {
     if (bottomIsEmpty()) {
-        square
-            .attr("y",square.position().top + 38);
+        moveDown();
         setTimeout(nextStep, 250);
     }
     else {
-        squaresStorage.push(
+        shape.forEach(function (square) {
+         square
+           squaresStorage.push(
                 {
                     'x': square.position().left,
                     'y': square.position().bottom
                 }
             )
-        newSquare();
+        });
+        if (shape[3].position().bottom != 41) {
+            newShape();
+        }
     }
 }
 
-var newSquare = function () {
-    square = svg.append('rect')
-        .attr('x', 201)
-        .attr('y', 1)
+var moveDown = function () {
+    shape.forEach(function (square) {
+         square
+            .attr("y",square.position().top + 38);
+    })
+}
+
+var newSquare = function (xOffset, yOffset) {
+    var square = svg.append('rect')
+        .attr('x', 201 + xOffset*40)
+        .attr('y', 1 + yOffset*40)
         .attr('width', 38)
         .attr('height', 38)
 
+    shape.push(square);
+}
+
+var newShape = function  () {
+    for (var i = 0; i < 4; i ++) {
+        shape.pop();
+    }
+
+    var magicNumber = randomNumber(0,3)
+
+    switch(magicNumber) {
+        case 0:
+            newSquare(1,0);
+            newSquare(0,1);
+            newSquare(1,1);
+            newSquare(2,1);
+            break;
+        case 1:
+            newSquare(0,0);
+            newSquare(0,1);
+            newSquare(1,1);
+            newSquare(1,0);
+            break;
+        case 2:
+            newSquare(0,0);
+            newSquare(0,1);
+            newSquare(0,2);
+            newSquare(0,3);
+            break;
+        case 3:
+            newSquare(0,0);
+            newSquare(0,1);
+            newSquare(1,1);
+            newSquare(2,1);
+            break;
+    }
     setTimeout(nextStep, 250);
 }
 
+var rotate = function () {
+
+}
+
 var toLeft = function () {
-    square
-        .attr("x",square.position().left - 42);
+    shape.forEach(function (square) {
+         square
+           .attr("x",square.position().left - 42);
+    });
 }
 
 var toRight = function () {
-    square
-        .attr("x",square.position().left + 38);
+    shape.forEach(function (square) {
+        square
+           .attr("x",square.position().left + 38);
+    });
 }
 
 var leftIsEmpty = function () {
-    var left = square.position().left;
-    var bottom = square.position().bottom;
-    if (left < 40) return false;
+    for (var i = 0; i < 4; i++ ) {
+        var left = shape[i].position().left;
+        var bottom = shape[i].position().bottom;
+        if (left < 40) return false;
 
-    var temp = squaresStorage.filter(function(item) {
-        if (item.x === left - 40 && item.y  === bottom) return item;
-    })
-    if (temp.length > 0) return false;
+        var temp = squaresStorage.filter(function(item) {
+            if (item.x === left - 40 && item.y  === bottom) return item;
+        })
+        if (temp.length > 0) return false;
+    }
 
     return true;
 }
 
 var rightIsEmpty = function () {
-    var left = square.position().left;
-    var bottom = square.position().bottom;
+    for (var i = 0; i < 4; i++ ) {
+        var left = shape[i].position().left;
+        var bottom = shape[i].position().bottom;
 
-    if (square.position().right > 440) return false;
+        if (left > 400) return false;
 
-    var temp = squaresStorage.filter(function(item) {
-        if (item.x === left + 40 && item.y  === bottom) return item;
-    })
-    if (temp.length > 0) return false;
+        var temp = squaresStorage.filter(function(item) {
+            if (item.x === left + 40 && item.y  === bottom) return item;
+        })
+        if (temp.length > 0) return false;
+    }
 
     return true;
 }
 
 var bottomIsEmpty = function () {
-    var left = square.position().left;
-    var bottom = square.position().bottom;
+    for (var i = 0; i < 4; i++ ) {
+        var left = shape[i].position().left;
+        var bottom = shape[i].position().bottom;
 
-    var temp = squaresStorage.filter(function(item) {
-        if (item.y === bottom + 40 && item.x === left) return item;
-    })
-    if (temp.length > 0) return false;
+        var temp = squaresStorage.filter(function(item) {
+            if (item.y === bottom + 40 && item.x === left) return item;
+        })
+        if (temp.length > 0) return false;
 
-    if (bottom === 721) return false;
+        if (bottom === 721) return false;
+    }
 
     return true;
 }
 
 drawGrid();
-newSquare();
+newShape();
 

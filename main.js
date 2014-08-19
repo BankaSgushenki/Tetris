@@ -382,7 +382,7 @@ var newSquare = function (xOffset, yOffset, rand) {
             square.attr("fill", "#FF0000")
             break;
         case 2:
-            square.attr("fill", "#FFA500")
+            square.attr("fill", "#FFD700")
             break;
         case 3:
             square.attr("fill", "#00FF00")

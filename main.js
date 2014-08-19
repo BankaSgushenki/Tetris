@@ -1,4 +1,5 @@
 
+(function () {
 var svg = d3.select('.game-space').append('svg');
 
 d3.selection.prototype.position = function() {
@@ -126,7 +127,7 @@ var shape = {
     toLeft : function () {
         this.blocks.forEach(function (square) {
             square
-                .attr("x",square.position().left - 42); //no ides, why it should be 42
+                .attr("x",square.position().left - 42); //no ideas, why it should be 42
         });
     },
 
@@ -349,7 +350,7 @@ var shape = {
     }
 };
 
-var nextStep = function () {
+function nextStep () {
     if (shape.bottomIsEmpty()) {
         shape.moveDown();
         setTimeout(nextStep, speed);
@@ -368,7 +369,7 @@ var nextStep = function () {
     }
 }
 
-var newSquare = function (xOffset, yOffset, rand) {
+function newSquare(xOffset, yOffset, rand) {
     var square = svg.append('rect')
         .attr('x', 161 + xOffset*40)
         .attr('y', 1 + yOffset*40)
@@ -392,7 +393,7 @@ var newSquare = function (xOffset, yOffset, rand) {
     shape.blocks.push(square);
 }
 
-var shapeFactory = function(type) {
+function shapeFactory(type) {
     while (shape.blocks.length) {
             shape.blocks.pop();
     }
@@ -425,8 +426,7 @@ var shapeFactory = function(type) {
     }
 }
 
-var newShape = function  () {
-
+function newShape() {
     shape.shapeType = randomNumber(0,3);
     shape.currentRotation = 0;
     shapeFactory(shape.shapeType);
@@ -436,4 +436,4 @@ var newShape = function  () {
 
 drawGrid();
 newShape();
-
+}) ();

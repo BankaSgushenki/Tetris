@@ -1,5 +1,5 @@
 
-var svg = d3.select('.content').append('svg');
+var svg = d3.select('.game-space').append('svg');
 
 d3.selection.prototype.position = function() {
     var el = this.node();
@@ -62,7 +62,9 @@ function moveSquare(e) {
             }
             break;
         case 32:
-            shape.rotate();
+        if (shape.enoughSpaceForRotation()) {
+                shape.rotate();
+            }
             break;
         }
 }
@@ -85,8 +87,11 @@ function checkLines() {
                     item.attr("y",item.position().top + BLOCKSIZE);
                 }
             });
-        document.querySelector(".score").innerText = "Score: " + ++score;
-        if(score % 5 === 0) speed = speed - 25;
+        document.querySelector(".score").innerText = "Score: " + ++score + ". Speed: " + speedCounter + "";
+        if(score % 5 === 0) {
+            speed = speed - 25;
+            speedCounter++;
+        }
         i--;
         }
     }
@@ -95,6 +100,8 @@ function checkLines() {
 var score = 0;
 
 var speed = 250;
+
+var speedCounter = 1;
 
 const BLOCKSIZE = 38;
 
@@ -171,6 +178,10 @@ var shape = {
 
             if (bottom === 721) return false;
         }
+        return true;
+    },
+
+    enoughSpaceForRotation: function() {
         return true;
     },
 

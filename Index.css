@@ -70,7 +70,7 @@ line {
     font-weight:bold;
 }
 
-@media (max-height: 900px) {
+@media (max-height: 890px) {
     svg {
         position: relative;
         border: 2px solid grey;

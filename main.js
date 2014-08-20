@@ -131,8 +131,6 @@ for( var i  = 18; i > 0; i --) {
     lines[18-i] = BLOCKSIZE*i + 1;
 }
 
-console.log(lines);
-
 window.addEventListener("keydown", moveSquare, false);
 
 window.onresize = function () {

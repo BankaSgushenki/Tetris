@@ -2,7 +2,7 @@
 (function () {
 var svg = d3.select('.game-space').append('svg');
 
-d3.selection.prototype.position = function() {
+d3.selection.prototype._position = function() {
     var el = this.node();
     var elPos = el.getBoundingClientRect();
     var vpPos = getVpPos(el);
@@ -21,6 +21,19 @@ d3.selection.prototype.position = function() {
         right: elPos.right - vpPos.left
     };
 
+};
+
+d3.selection.prototype._moveBlock = function(offsetX, offsetY) {
+    this.attr('x', this._position().left + offsetX*BLOCKSIZE - 2);
+    this.attr('y', this._position().top + offsetY*BLOCKSIZE - 2);
+
+};
+
+d3.selection.prototype._checkRotation = function(offsetX, offsetY) {
+    return {
+        x: this._position().left + offsetX - 2,
+        y: this._position().top + offsetY - 2
+    }
 };
 
 function randomNumber (m,n) {
@@ -50,8 +63,8 @@ function drawGrid() {
 function redrawBlocks() {
     squaresStorage.forEach(function(square) {
         square
-            .attr('x', ((square.position.left()-1)/40) * BLOCKSIZE + 1)
-            .attr('y', ((square.position.top()-1)/40) * BLOCKSIZE + 1)
+            .attr('x', ((square._position.left()-1)/40) * BLOCKSIZE + 1)//fix later
+            .attr('y', ((square._position.top()-1)/40) * BLOCKSIZE + 1)
             .attr('width', BLOCKSIZE - 2)
             .attr('height', BLOCKSIZE - 2)
     }) 
@@ -90,20 +103,20 @@ function moveSquare(e) {
 function checkLines() {
     for (var i = 0; i < 17; i ++) {
         var temp = squaresStorage.filter(function(item) {
-            if (item.position().bottom === lines[i]) return item;
+            if (item._position().bottom === lines[i]) return item;
         })
 
         if(temp.length === 11) {
             squaresStorage = squaresStorage.filter(function(item) {
-                if (item.position().bottom != lines[i])  {
+                if (item._position().bottom != lines[i])  {
                     return item;
                 }
                 else item.remove();
             })
             squaresStorage.forEach(function (item) {
-                if(item.position().top < lines[i]) {
+                if(item._position().top < lines[i]) {
                     item
-                        .attr("y",item.position().top + BLOCKSIZE - 2);
+                        .attr("y",item._position().top + BLOCKSIZE - 2);
                 }
             });
         document.querySelector(".score").innerText = "Score: " + ++score + ". Speed: " + speedCounter + "";
@@ -116,11 +129,7 @@ function checkLines() {
     }
 }
 
-var score = 0;
-
-var speed = 250;
-
-var speedCounter = 1;
+var score = 0, speed = 250, speedCounter = 1;
 
 var BLOCKSIZE = (document.querySelector('svg').offsetHeight -4)/18;
 
@@ -147,32 +156,32 @@ var shape = {
     moveDown : function () {
         this.blocks.forEach(function (square) {
             square
-                .attr("y",square.position().top + BLOCKSIZE - 2);
+                .attr("y",square._position().top + BLOCKSIZE - 2);
         });
     },
 
     toLeft : function () {
         this.blocks.forEach(function (square) {
             square
-                .attr("x",square.position().left - BLOCKSIZE - 2); //no ideas, why it should be 42
+                .attr("x",square._position().left - BLOCKSIZE - 2);
         });
     },
 
     toRight : function () {
          this.blocks.forEach(function (square) {
             square
-                .attr("x",square.position().left + BLOCKSIZE - 2);
+                .attr("x",square._position().left + BLOCKSIZE - 2);
         });
     },
 
     leftIsEmpty : function () {
         for (var i = 0; i < 4; i++ ) {
-            var left = this.blocks[i].position().left;
-            var bottom = this.blocks[i].position().bottom;
+            var left = this.blocks[i]._position().left;
+            var bottom = this.blocks[i]._position().bottom;
             if (left < BLOCKSIZE) return false;
     
             var temp = squaresStorage.filter(function(item) {
-                if (item.position().left === left - BLOCKSIZE && item.position().bottom  === bottom) return item;
+                if (item._position().left === left - BLOCKSIZE && item._position().bottom  === bottom) return item;
             })
             if (temp.length > 0) return false;
         }
@@ -181,13 +190,13 @@ var shape = {
 
     rightIsEmpty : function () {
         for (var i = 0; i < 4; i++ ) {
-         var left = this.blocks[i].position().left;
-            var bottom = this.blocks[i].position().bottom;
+         var left = this.blocks[i]._position().left;
+            var bottom = this.blocks[i]._position().bottom;
 
             if (left > BLOCKSIZE*10) return false;
 
             var temp = squaresStorage.filter(function(item) {
-                if (item.position().left === left + BLOCKSIZE && item.position().bottom  === bottom) return item;
+                if (item._position().left === left + BLOCKSIZE && item._position().bottom  === bottom) return item;
             })
             if (temp.length > 0) return false;
         }
@@ -196,11 +205,11 @@ var shape = {
 
     bottomIsEmpty : function () {
         for (var i = 0; i < 4; i++ ) {
-            var left = this.blocks[i].position().left;
-            var bottom = this.blocks[i].position().bottom;
+            var left = this.blocks[i]._position().left;
+            var bottom = this.blocks[i]._position().bottom;
 
             var temp = squaresStorage.filter(function(item) {
-                if (item.position().bottom === bottom + BLOCKSIZE && item.position().left === left) return item;
+                if (item._position().bottom === bottom + BLOCKSIZE && item._position().left === left) return item;
             })
         if (temp.length > 0) return false;
 
@@ -210,172 +219,126 @@ var shape = {
     },
 
     enoughSpaceForRotation: function() {
+        var blocksToCheck = [];
+        for (var i = 0; i < 4; i ++) {
+               blocksToCheck[i] = {
+                  top:  this.blocks[i]._position().top,
+                  left: this.blocks[i]._position().left,
+                  _moveBlock: function(offsetX, offsetY) {
+                          this.left = this.left + offsetX*BLOCKSIZE - 2;
+                          this.top = this.top + offsetY*BLOCKSIZE - 2;
+                      }
+                  }
+              }
+        var testBlocks = this.rotate(blocksToCheck, this.currentRotation);
+        for(var i = 0; i < 4; i ++) {
+            if (testBlocks[i].left > 401 || testBlocks[i].left < 1) {
+                return false;
+            }
+        }
         return true;
     },
 
-    rotate : function () {
-        var positiveOffset = BLOCKSIZE - 2;
-        var negativeOffset = BLOCKSIZE + 2
+    rotate : function (blocksToCheck, currentRotation) {
+        if (arguments.length === 0) {
+            var blocks = this.blocks;
+            currentRotation = this.currentRotation;
+        }
+        else {
+            blocks = blocksToCheck;
+        }
         switch (this.shapeType) {
             case 0:
-                switch (this.currentRotation) {
+                switch (currentRotation) {
                     case 0:
-                        this.blocks[0].attr('x', this.blocks[0].position().left + positiveOffset)
-                        this.blocks[0].attr('y', this.blocks[0].position().top + positiveOffset)
-
-                        this.blocks[3].attr('x', this.blocks[3].position().left - negativeOffset)
-                        this.blocks[3].attr('y', this.blocks[3].position().top + positiveOffset)
-
-                        this.blocks[1].attr('x', this.blocks[1].position().left + positiveOffset)
-                        this.blocks[1].attr('y', this.blocks[1].position().top - negativeOffset)
-
-                        this.currentRotation = 90;
+                        blocks[0]._moveBlock(1, 1);
+                        blocks[1]._moveBlock(1, -1);
+                        blocks[3]._moveBlock(-1, 1);
+                        currentRotation = 90;
                         break;
                     case 90:
-                        this.blocks[0].attr('x', this.blocks[0].position().left - negativeOffset);
-                        this.blocks[0].attr('y', this.blocks[0].position().top + positiveOffset)
-
-                        this.blocks[3].attr('x', this.blocks[3].position().left - negativeOffset)
-                        this.blocks[3].attr('y', this.blocks[3].position().top - negativeOffset)
-
-                        this.blocks[1].attr('x', this.blocks[1].position().left + positiveOffset)
-                        this.blocks[1].attr('y', this.blocks[1].position().top + positiveOffset)
-
-                        this.currentRotation = 180;
+                        blocks[0]._moveBlock(-1, 1);
+                        blocks[1]._moveBlock(1, 1);
+                        blocks[3]._moveBlock(-1, -1);
+                        currentRotation = 180;
                         break;
                     case 180:
-                        this.blocks[0].attr('x', this.blocks[0].position().left - negativeOffset)
-                        this.blocks[0].attr('y', this.blocks[0].position().top  - negativeOffset)
-
-                        this.blocks[3].attr('x', this.blocks[3].position().left + positiveOffset)
-                        this.blocks[3].attr('y', this.blocks[3].position().top - negativeOffset)
-
-                        this.blocks[1].attr('x', this.blocks[1].position().left - negativeOffset)
-                        this.blocks[1].attr('y', this.blocks[1].position().top + positiveOffset)
-
-                        this.currentRotation = 270;
+                        blocks[0]._moveBlock(-1, -1);
+                        blocks[1]._moveBlock(-1, 1);
+                        blocks[3]._moveBlock(1, -1);
+                        currentRotation = 270;
                         break;
                     case 270:
-                        this.blocks[0].attr('x', this.blocks[0].position().left + positiveOffset)
-                        this.blocks[0].attr('y', this.blocks[0].position().top - negativeOffset)
-
-                        this.blocks[3].attr('x', this.blocks[3].position().left + positiveOffset)
-                        this.blocks[3].attr('y', this.blocks[3].position().top + positiveOffset)
-
-                        this.blocks[1].attr('x', this.blocks[1].position().left - negativeOffset)
-                        this.blocks[1].attr('y', this.blocks[1].position().top - negativeOffset)
-
-                        this.currentRotation = 0;
+                        blocks[0]._moveBlock(1, -1);
+                        blocks[1]._moveBlock(-1, -1);
+                        blocks[3]._moveBlock(1, 1);
+                        currentRotation = 0;
                         break;
                 }
                 break;
 
             case 2:
-                switch (this.currentRotation) {
+                switch (currentRotation) {
                     case 0:
-                        this.blocks[0].attr('x', this.blocks[0].position().left + positiveOffset + BLOCKSIZE)
-                        this.blocks[0].attr('y', this.blocks[0].position().top + positiveOffset + BLOCKSIZE)
-
-                        this.blocks[3].attr('x', this.blocks[3].position().left - negativeOffset)
-                        this.blocks[3].attr('y', this.blocks[3].position().top - negativeOffset)
-
-                        this.blocks[1].attr('x', this.blocks[1].position().left + positiveOffset)
-                        this.blocks[1].attr('y', this.blocks[1].position().top + positiveOffset)
-
-                        this.currentRotation = 90;
+                        blocks[0]._moveBlock(2, 2);
+                        blocks[1]._moveBlock(1, 1);
+                        blocks[3]._moveBlock(-1, -1);
+                        currentRotation = 90;
                         break;
                     case 90:
-                        this.blocks[0].attr('x', this.blocks[0].position().left - negativeOffset - BLOCKSIZE);
-                        this.blocks[0].attr('y', this.blocks[0].position().top + positiveOffset + BLOCKSIZE)
-
-                        this.blocks[3].attr('x', this.blocks[3].position().left + positiveOffset)
-                        this.blocks[3].attr('y', this.blocks[3].position().top - negativeOffset)
-
-                        this.blocks[1].attr('x', this.blocks[1].position().left -negativeOffset)
-                        this.blocks[1].attr('y', this.blocks[1].position().top + positiveOffset)
-
-                        this.currentRotation = 180;
+                        blocks[0]._moveBlock(-2, 2);
+                        blocks[1]._moveBlock(-1, 1);
+                        blocks[3]._moveBlock(1, -1);
+                        currentRotation = 180;
                         break;
                     case 180:
-                        this.blocks[0].attr('x', this.blocks[0].position().left - negativeOffset - BLOCKSIZE)
-                        this.blocks[0].attr('y', this.blocks[0].position().top  - negativeOffset - BLOCKSIZE)
-
-                        this.blocks[3].attr('x', this.blocks[3].position().left + positiveOffset)
-                        this.blocks[3].attr('y', this.blocks[3].position().top + positiveOffset)
-
-                        this.blocks[1].attr('x', this.blocks[1].position().left - negativeOffset)
-                        this.blocks[1].attr('y', this.blocks[1].position().top - negativeOffset)
-
-                        this.currentRotation = 270;
+                        blocks[0]._moveBlock(-2, -2);
+                        blocks[1]._moveBlock(-1, -1);
+                        blocks[3]._moveBlock(1, 1);
+                        currentRotation = 270;
                         break;
                     case 270:
-                        this.blocks[0].attr('x', this.blocks[0].position().left + positiveOffset + BLOCKSIZE)
-                        this.blocks[0].attr('y', this.blocks[0].position().top - negativeOffset - BLOCKSIZE)
-
-                        this.blocks[3].attr('x', this.blocks[3].position().left - negativeOffset)
-                        this.blocks[3].attr('y', this.blocks[3].position().top + positiveOffset)
-
-                        this.blocks[1].attr('x', this.blocks[1].position().left + positiveOffset)
-                        this.blocks[1].attr('y', this.blocks[1].position().top - negativeOffset)
-
-                        this.currentRotation = 0;
+                        blocks[0]._moveBlock(2, -2);
+                        blocks[1]._moveBlock(1, -1);
+                        blocks[3]._moveBlock(-1, 1);
+                        currentRotation = 0;
                         break;
                 }
                 break;
 
              case 3:
-                switch (this.currentRotation) {
+                switch (currentRotation) {
                     case 0:
-                        this.blocks[0].attr('x', this.blocks[0].position().left + positiveOffset)
-                        this.blocks[0].attr('y', this.blocks[0].position().top + positiveOffset)
-
-                        this.blocks[3].attr('x', this.blocks[3].position().left - negativeOffset - BLOCKSIZE)
-                        this.blocks[3].attr('y', this.blocks[3].position().top + positiveOffset + BLOCKSIZE)
-
-                        this.blocks[2].attr('x', this.blocks[2].position().left - negativeOffset)
-                        this.blocks[2].attr('y', this.blocks[2].position().top + positiveOffset)
-
-                        this.currentRotation = 90;
+                        blocks[0]._moveBlock(1, 1);
+                        blocks[2]._moveBlock(-1, 1);
+                        blocks[3]._moveBlock(-2, 2);
+                        currentRotation = 90;
                         break;
                     case 90:
-                        this.blocks[0].attr('x', this.blocks[0].position().left - negativeOffset);
-                        this.blocks[0].attr('y', this.blocks[0].position().top + positiveOffset)
-
-                        this.blocks[3].attr('x', this.blocks[3].position().left - negativeOffset - BLOCKSIZE)
-                        this.blocks[3].attr('y', this.blocks[3].position().top - negativeOffset - BLOCKSIZE)
-
-                        this.blocks[2].attr('x', this.blocks[1].position().left - negativeOffset)
-                        this.blocks[2].attr('y', this.blocks[2].position().top  - negativeOffset)
-
-                        this.currentRotation = 180;
+                        blocks[0]._moveBlock(-1, 1);
+                        blocks[2]._moveBlock(-1, -1);
+                        blocks[3]._moveBlock(-2, -2);
+                        currentRotation = 180;
                         break;
                     case 180:
-                        this.blocks[0].attr('x', this.blocks[0].position().left - negativeOffset)
-                        this.blocks[0].attr('y', this.blocks[0].position().top  - negativeOffset)
-
-                        this.blocks[3].attr('x', this.blocks[3].position().left + positiveOffset + BLOCKSIZE)
-                        this.blocks[3].attr('y', this.blocks[3].position().top - negativeOffset - BLOCKSIZE)
-
-                        this.blocks[2].attr('x', this.blocks[2].position().left + positiveOffset)
-                        this.blocks[2].attr('y', this.blocks[2].position().top - negativeOffset)
-
-                        this.currentRotation = 270;
+                        blocks[0]._moveBlock(-1, -1);
+                        blocks[2]._moveBlock(1, -1);
+                        blocks[3]._moveBlock(2, -2);
+                        currentRotation = 270;
                         break;
                     case 270:
-                        this.blocks[0].attr('x', this.blocks[0].position().left + positiveOffset)
-                        this.blocks[0].attr('y', this.blocks[0].position().top - negativeOffset)
-
-                        this.blocks[3].attr('x', this.blocks[3].position().left + positiveOffset + BLOCKSIZE)
-                        this.blocks[3].attr('y', this.blocks[3].position().top + positiveOffset + BLOCKSIZE)
-
-                        this.blocks[2].attr('x', this.blocks[2].position().left + positiveOffset)
-                        this.blocks[2].attr('y', this.blocks[2].position().top + positiveOffset)
-
-                        this.currentRotation = 0;
+                        blocks[0]._moveBlock(1, -1);
+                        blocks[2]._moveBlock(1, 1);
+                        blocks[3]._moveBlock(2, 2);
+                        currentRotation = 0;
                         break;
                 }
                 break;
         }
+    if (arguments.length === 0) {
+        this.currentRotation = currentRotation;
+    }
+    return blocks;
     }
 };
 
@@ -389,7 +352,7 @@ function nextStep () {
             squaresStorage.push(square)
         });
         var temp = shape.blocks.filter(function(item) {
-                if (item.position().bottom === BLOCKSIZE+1) return item;
+                if (item._position().bottom === BLOCKSIZE+1) return item;
             })
         if (!temp.length) {
             checkLines();

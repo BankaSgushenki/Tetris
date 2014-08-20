@@ -120,8 +120,8 @@ function checkLines() {
                 }
             });
         document.querySelector(".score").innerText = "Score: " + ++score + ". Speed: " + speedCounter + "";
-        if(score % 5 === 0) {
-            speed = speed - 25;
+        if(score % 5 === 0 && speedCounter < 5) {
+            speed = speed - 27;
             speedCounter++;
         }
         i--;

@@ -1,8 +1,23 @@
+@font-face {
+    font-family: 'ABeeZee'; 
+    src: url(./abeezee/abeezee-regular.ttf); 
+   }
+
+body {
+    font-family: 'ABeeZee', 'Aerial';
+}
+
 .content {
     margin: 30px auto;
-    height: 720px;
+    height: 800px;
     width: 480px;
     text-align: center;
+    border: 1px solid grey;
+    border-radius: 8px;
+}
+
+.game-space {
+    margin: 10px;
 }
 
 svg {
@@ -13,15 +28,66 @@ svg {
 }
 
 rect {
-    z-index: 0;
     -webkit-transition: all 2s ease;
 }
 
 line {
-    z-index: 10;
     stroke: gray; 
     stroke-width: 1;
 }
+
+/******************* Shadows **************************/
+
+.curved-hz-2 {
+    padding:1em;
+    background:#fff;
+    -webkit-box-shadow:0 1px 4px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.1) inset;
+       -moz-box-shadow:0 1px 4px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.1) inset;
+            box-shadow:0 1px 4px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.1) inset;
+}
+ 
+.curved-hz-2:before,
+.curved-hz-2:after {
+    content:"";
+    position:absolute;
+    z-index:-2;
+}
+ 
+.curved-hz-2:before {
+    top:0px;
+    bottom:0px;
+    left:10px;
+    right:10px;
+    -webkit-box-shadow:0 0 15px rgba(0,0,0,0.6);
+       -moz-box-shadow:0 0 15px rgba(0,0,0,0.6);
+            box-shadow:0 0 15px rgba(0,0,0,0.6);
+    -moz-border-radius:100px / 10px;
+         border-radius:100px / 10px;
+}
+ 
+.curved-hz-2 p {
+    font-size:16px;
+    font-weight:bold;
+}
+
+@media (max-height: 890px) {
+    svg {
+        position: relative;
+        border: 2px solid grey;
+        height: 540px;
+        width: 330px;
+    }
+
+    .content {
+        margin: 30px auto;
+        height: 620px;
+        width: 370px;
+        text-align: center;
+        border: 1px solid grey;
+        border-radius: 8px;
+        font-size: 0.95em;
+    }
+}        
         
 
 

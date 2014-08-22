@@ -1,0 +1,19 @@
+@font-face {
+    font-family: 'ABeeZe';
+    src: url('abeezee-regular.eot');
+    src: url('abeezee-regular.eot?#iefix') format('embedded-opentype'),
+         url('abeezee-regular.woff') format('woff'),
+         url('abeezee-regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'ABeeZe';
+    src: url('abeezee-italic.eot');
+    src: url('abeezee-italic.eot?#iefix') format('embedded-opentype'),
+         url('abeezee-italic.woff') format('woff'),
+         url('abeezee-italic.ttf') format('truetype');
+    font-weight: normal;
+    font-style: italic;
+}
